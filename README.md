@@ -29,6 +29,7 @@
 - 📊 **JSON output** — for integration with other tools
 - ⚙️ **Configuration** — TOML config with module settings
 - 🎯 **True-color** — 24-bit color support
+- 🔧 **Diagnostic tools** — performance score, health check, security audit, and more
 
 ### 📸 Screenshot
 
@@ -106,9 +107,62 @@ nimfetch --no-logo
 # Create configuration file
 nimfetch --init-config
 
+# Interactive config generator
+nimfetch --generate-config
+
 # Show help
 nimfetch --help
 ```
+
+### 🔧 Diagnostic Tools
+
+Nimfetch includes powerful diagnostic tools for system analysis:
+
+#### Performance Score
+```bash
+nimfetch --score
+```
+Evaluates your system's performance based on CPU, RAM, and disk. Shows scores from 0-1000 and percentile rankings.
+
+#### Health Check
+```bash
+nimfetch --health
+```
+Checks system health: CPU temperature, memory usage, disk space, system load, and zombie processes. Provides recommendations for issues found.
+
+#### Security Audit
+```bash
+nimfetch --security
+```
+Audits system security: firewall status, SSH configuration, open ports, SELinux/AppArmor, disk encryption, and automatic updates. Provides security score and recommendations.
+
+#### Power Analysis
+```bash
+nimfetch --power
+```
+Analyzes power profile and battery status. Shows power draw estimates, battery percentage, and provides recommendations for laptop users.
+
+#### Network Diagnostics
+```bash
+nimfetch --network-test
+```
+Tests network connectivity: internet connection, DNS resolution, gateway reachability, external IP, and IPv6 availability.
+
+#### Game Compatibility
+```bash
+# Check if your system can run a specific game
+nimfetch --can-run "Cyberpunk 2077"
+
+# List all games in database
+nimfetch --games
+```
+Checks if your system meets the requirements for popular games. Database includes: Cyberpunk 2077, Elden Ring, Baldur's Gate 3, GTA V, Minecraft, Fortnite, Valorant, CS2, and more.
+
+#### Live Monitoring
+```bash
+nimfetch --live
+```
+Real-time system monitoring with live CPU, memory, and disk usage updates. Press Ctrl+C to exit.
 
 ### 🎨 Themes
 
@@ -188,6 +242,7 @@ MIT License - see [LICENSE](LICENSE) file
 - 📊 **JSON вывод** — для интеграции с другими инструментами
 - ⚙️ **Конфигурация** — TOML конфиг с настройкой модулей
 - 🎯 **True-color** — поддержка 24-битных цветов
+- 🔧 **Диагностика** — оценка производительности, проверка здоровья, аудит безопасности
 
 ### 🚀 Установка
 
@@ -241,9 +296,62 @@ nimfetch --no-logo
 # Создать конфигурационный файл
 nimfetch --init-config
 
+# Интерактивный генератор конфигурации
+nimfetch --generate-config
+
 # Показать справку
 nimfetch --help
 ```
+
+### 🔧 Диагностика
+
+Nimfetch включает мощные инструменты диагностики системы:
+
+#### Оценка производительности
+```bash
+nimfetch --score
+```
+Оценивает производительность системы на основе CPU, RAM и диска. Показывает оценку от 0-1000 и процентиль.
+
+#### Проверка здоровья
+```bash
+nimfetch --health
+```
+Проверяет здоровье системы: температуру CPU, использование памяти, место на диске, нагрузку системы и зомби-процессы. Даёт рекомендации при обнаружении проблем.
+
+#### Аудит безопасности
+```bash
+nimfetch --security
+```
+Проверяет безопасность: статус файрвола, конфигурацию SSH, открытые порты, SELinux/AppArmor, шифрование диска и автоматические обновления. Показывает оценку безопасности и рекомендации.
+
+#### Анализ питания
+```bash
+nimfetch --power
+```
+Анализирует профиль питания и статус батареи. Показывает примерное потребление энергии, процент заряда и рекомендации для ноутбуков.
+
+#### Диагностика сети
+```bash
+nimfetch --network-test
+```
+Проверяет сетевое подключение: интернет, DNS, доступность шлюза, внешний IP и доступность IPv6.
+
+#### Совместимость с играми
+```bash
+# Проверить, потянет ли система конкретную игру
+nimfetch --can-run "Cyberpunk 2077"
+
+# Показать все игры в базе
+nimfetch --games
+```
+Проверяет, соответствует ли ваша система требованиям популярных игр. База включает: Cyberpunk 2077, Elden Ring, Baldur's Gate 3, GTA V, Minecraft, Fortnite, Valorant, CS2 и другие.
+
+#### Мониторинг в реальном времени
+```bash
+nimfetch --live
+```
+Мониторинг системы в реальном времени с обновлением CPU, памяти и диска. Выход по Ctrl+C.
 
 ### 🎨 Темы
 
