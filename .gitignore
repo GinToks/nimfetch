@@ -1,0 +1,37 @@
+# Nim compilation artifacts
+*.out
+nimfetch
+src/nimfetch
+src/nimfetch.out
+*.exe
+
+# Nim cache
+nimcache/
+.cache/
+
+# Compiled dynamic libraries
+*.so
+*.dll
+*.dylib
+
+# Test artifacts
+tests/*.out
+tests/*.exe
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+
+# Debug files
+*.pdb

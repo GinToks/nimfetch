@@ -1,0 +1,37 @@
+# nimfetch configuration file
+# Copy this file to ~/.config/nimfetch/config.toml
+
+[display]
+# List of enabled modules (order matters)
+# Available: os, kernel, uptime, packages, shell, resolution, cpu, gpu, memory, disk, network, battery, media, motherboard, bios, bluetooth, locale, timezone
+enabled_modules = ["os", "kernel", "uptime", "packages", "shell", "resolution", "cpu", "gpu", "memory", "disk", "network", "battery", "media", "motherboard", "bluetooth", "locale", "timezone"]
+
+# Separator between label and value
+separator = ": "
+
+# Primary color for labels
+color_primary = "cyan"
+
+# Secondary color for values
+color_secondary = "white"
+
+[logo]
+# Logo type: "auto", "arch", "ubuntu", "fedora", "debian", "gentoo", "nixos", "opensuse", "none"
+type = "auto"
+
+# Custom logo file path (if type = "custom")
+custom_path = ""
+
+# Logo color (overrides distro default)
+color = ""
+
+[icons]
+# Enable icons in output
+enabled = true
+
+# Use Nerd Font icons (requires Nerd Font installed)
+nerd_font = true
+
+[theme]
+# Color theme: default, dracula, nord, gruvbox, catppuccin, tokyonight, onedark, solarized, monokai, github
+name = "default"
