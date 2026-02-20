@@ -1,4 +1,4 @@
-# 🖥️ nimfetch
+# 🖥️ Nimfetch
 
 <div align="center">
 
@@ -18,7 +18,7 @@
 
 ### 📋 Description
 
-**nimfetch** is a modern, fast and customizable system information tool written in Nim. It displays your system information in a beautiful format with support for themes, icons and distribution logos.
+**Nimfetch** is a modern, fast and customizable system information tool written in Nim. It displays your system information in a beautiful format with support for themes, icons and distribution logos.
 
 ### ✨ Features
 
@@ -177,7 +177,7 @@ MIT License - see [LICENSE](LICENSE) file
 
 ### 📋 Описание
 
-**nimfetch** — это современный, быстрый и настраиваемый инструмент для отображения системной информации, написанный на Nim. Он показывает информацию о вашей системе в красивом формате с поддержкой тем, иконок и логотипов дистрибутивов.
+**Nimfetch** — это современный, быстрый и настраиваемый инструмент для отображения системной информации, написанный на Nim. Он показывает информацию о вашей системе в красивом формате с поддержкой тем, иконок и логотипов дистрибутивов.
 
 ### ✨ Возможности
 

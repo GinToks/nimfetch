@@ -62,8 +62,35 @@ const
 
 # ----------------- ФУНКЦИИ -----------------
 
-proc showHelp() =
-  echo colorize("""
+proc showHelp(lang: string = "en") =
+  if lang == "ru":
+    echo colorize("""
+nimfetch - Быстрый инструмент системной информации
+
+Использование:
+  nimfetch [ОПЦИИ]
+
+Опции:
+  -h, --help        Показать эту справку
+  -v, --version     Показать версию
+  -c, --config      Показать путь к конфигу
+  --init-config     Создать конфигурационный файл
+  --no-config       Игнорировать конфигурационный файл
+  --no-logo         Не показывать логотип
+  --json            Вывести в JSON формате
+  --themes          Показать доступные темы
+  --theme=NAME      Использовать тему (временно)
+  --set-theme=NAME  Установить тему постоянно (сохранить в конфиг)
+
+Примеры:
+  nimfetch              Показать системную информацию
+  nimfetch --help       Показать справку
+  nimfetch --init-config   Создать конфиг
+  nimfetch --theme=nord Использовать тему nord
+  nimfetch --set-theme=dracula  Установить dracula как тему по умолчанию
+""", Cyan)
+  else:
+    echo colorize("""
 nimfetch - Fast system information tool
 
 Usage:
@@ -399,13 +426,17 @@ when isMainModule:
   var useJson = false
   var themeName = ""
   var setTheme = ""
+  
+  # Pre-load config for language setting
+  let preCfg = if fileExists(getConfigPath()): loadConfig() else: defaultConfig()
+  let lang = preCfg.general.language
 
   for kind, key, val in p.getopt():
     case kind
     of cmdLongOption, cmdShortOption:
       case key
       of "help", "h":
-        showHelp()
+        showHelp(lang)
         showInfo = false
       of "version", "v":
         showVersion()
@@ -431,8 +462,12 @@ when isMainModule:
       of "set-theme":
         setTheme = val
       else:
-        echo colorize("❌ Unknown option: ", BrightRed) & key
-        echo "Use --help for usage"
+        if lang == "ru":
+          echo colorize("❌ Неизвестная опция: ", BrightRed) & key
+          echo "Используйте --help для справки"
+        else:
+          echo colorize("❌ Unknown option: ", BrightRed) & key
+          echo "Use --help for usage"
         quit(1)
     of cmdArgument:
       discard
@@ -442,9 +477,15 @@ when isMainModule:
   # Handle --set-theme
   if setTheme.len > 0:
     if saveTheme(setTheme):
-      echo colorize("✓ Theme '", Green) & setTheme & colorize("' saved as default theme", Green)
+      if lang == "ru":
+        echo colorize("✓ Тема '", Green) & setTheme & colorize("' сохранена как тема по умолчанию", Green)
+      else:
+        echo colorize("✓ Theme '", Green) & setTheme & colorize("' saved as default theme", Green)
     else:
-      echo colorize("✗ Failed to save theme", BrightRed)
+      if lang == "ru":
+        echo colorize("✗ Ошибка сохранения темы", BrightRed)
+      else:
+        echo colorize("✗ Failed to save theme", BrightRed)
     showInfo = false
 
   if showInfo:
