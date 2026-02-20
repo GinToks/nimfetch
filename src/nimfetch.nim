@@ -32,6 +32,14 @@ import nimfetch/modules/bluetooth
 import nimfetch/modules/locale
 import nimfetch/json_output
 import nimfetch/logos/auto
+import nimfetch/modules/config_gen
+import nimfetch/modules/network_test
+import nimfetch/modules/power
+import nimfetch/modules/security
+import nimfetch/modules/health
+import nimfetch/modules/score
+import nimfetch/modules/game_compat
+import nimfetch/modules/live
 
 # ----------------- КОНСТАНТЫ -----------------
 const Version = "0.2.0"
@@ -71,23 +79,33 @@ nimfetch - Быстрый инструмент системной информа
   nimfetch [ОПЦИИ]
 
 Опции:
-  -h, --help        Показать эту справку
-  -v, --version     Показать версию
-  -c, --config      Показать путь к конфигу
-  --init-config     Создать конфигурационный файл
-  --no-config       Игнорировать конфигурационный файл
-  --no-logo         Не показывать логотип
-  --json            Вывести в JSON формате
-  --themes          Показать доступные темы
-  --theme=NAME      Использовать тему (временно)
-  --set-theme=NAME  Установить тему постоянно (сохранить в конфиг)
+   -h, --help        Показать эту справку
+   -v, --version     Показать версию
+   -c, --config      Показать путь к конфигу
+   --init-config     Создать конфигурационный файл
+   --generate-config Интерактивный генератор конфигурации
+   --no-config       Игнорировать конфигурационный файл
+   --no-logo         Не показывать логотип
+   --json            Вывести в JSON формате
+   --themes          Показать доступные темы
+   --theme=NAME      Использовать тему (временно)
+   --set-theme=NAME  Установить тему постоянно (сохранить в конфиг)
+
+Диагностика:
+   --score           Оценка производительности системы
+   --health          Проверка здоровья системы
+   --security        Аудит безопасности
+   --power           Анализ питания и батареи
+   --network-test    Диагностика сети
+   --can-run=GAME    Проверить совместимость с игрой
+   --games           Показать список игр в базе
+   --live            Мониторинг в реальном времени
 
 Примеры:
   nimfetch              Показать системную информацию
-  nimfetch --help       Показать справку
-  nimfetch --init-config   Создать конфиг
-  nimfetch --theme=nord Использовать тему nord
-  nimfetch --set-theme=dracula  Установить dracula как тему по умолчанию
+  nimfetch --health     Проверить здоровье системы
+  nimfetch --can-run "Cyberpunk 2077"
+  nimfetch --live       Мониторинг в реальном времени
 """, Cyan)
   else:
     echo colorize("""
@@ -97,16 +115,33 @@ Usage:
   nimfetch [OPTIONS]
 
 Options:
-  -h, --help        Show this help
-  -v, --version     Show version
-  -c, --config      Show config path
-  --init-config     Create default configuration file
-  --no-config       Ignore configuration file
-  --no-logo         Don't show logo
-  --json            Output in JSON format
-  --themes          Show available themes
-  --theme=NAME      Use theme (temporary)
-  --set-theme=NAME  Set theme permanently (save to config)
+   -h, --help        Show this help
+   -v, --version     Show version
+   -c, --config      Show config path
+   --init-config     Create default configuration file
+   --generate-config Interactive configuration generator
+   --no-config       Ignore configuration file
+   --no-logo         Don't show logo
+   --json            Output in JSON format
+   --themes          Show available themes
+   --theme=NAME      Use theme (temporary)
+   --set-theme=NAME  Set theme permanently (save to config)
+
+Diagnostics:
+   --score           System performance score
+   --health          System health check
+   --security        Security audit
+   --power           Power and battery analysis
+   --network-test    Network diagnostics
+   --can-run=GAME    Check game compatibility
+   --games           Show game database
+   --live            Real-time monitoring
+
+Examples:
+  nimfetch              Show system information
+  nimfetch --health     Check system health
+  nimfetch --can-run "Cyberpunk 2077"
+  nimfetch --live       Real-time monitoring
 
 Examples:
   nimfetch              Show system information
@@ -447,6 +482,9 @@ when isMainModule:
       of "init-config":
         initConfig()
         showInfo = false
+      of "generate-config":
+        discard config_gen.generateConfig(lang)
+        showInfo = false
       of "no-config":
         useConfig = false
       of "no-logo":
@@ -461,6 +499,30 @@ when isMainModule:
         themeName = val
       of "set-theme":
         setTheme = val
+      of "score":
+        score.printPerformanceScore(lang)
+        showInfo = false
+      of "health":
+        health.printHealthReport(lang)
+        showInfo = false
+      of "security":
+        security.printSecurityAudit(lang)
+        showInfo = false
+      of "power":
+        power.printPowerAnalysis(lang)
+        showInfo = false
+      of "network-test":
+        network_test.printNetworkTest(lang)
+        showInfo = false
+      of "can-run":
+        game_compat.printCompatibility(val, lang)
+        showInfo = false
+      of "games":
+        game_compat.listGames(lang)
+        showInfo = false
+      of "live":
+        live.runLiveMode(lang)
+        showInfo = false
       else:
         if lang == "ru":
           echo colorize("❌ Неизвестная опция: ", BrightRed) & key
