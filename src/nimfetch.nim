@@ -1,10 +1,10 @@
 # src/nimfetch.nim
 # ============================================
-# nimfetch - Быстрый инструмент системной информации
-# Написан на Nim с любовью ❤️
+# nimfetch - Fast system information tool
+# Written in Nim with love ❤️
 # ============================================
 
-# ----------------- ИМПОРТЫ -----------------
+# ----------------- IMPORTS -----------------
 import std/strformat
 import std/os
 import std/parseopt
@@ -12,7 +12,7 @@ import std/strutils
 import std/math
 import std/unicode
 
-# Импортируем наши модули
+# Import our modules
 import nimfetch/colors
 import nimfetch/config
 import nimfetch/themes
@@ -41,7 +41,7 @@ import nimfetch/modules/score
 import nimfetch/modules/game_compat
 import nimfetch/modules/live
 
-# ----------------- КОНСТАНТЫ -----------------
+# ----------------- CONSTANTS -----------------
 const Version = "0.2.0"
 const AppName = "nimfetch"
 
@@ -68,47 +68,10 @@ const
   IconNet = "🌐"
   IconIP = "🔗"
 
-# ----------------- ФУНКЦИИ -----------------
+# ----------------- FUNCTIONS -----------------
 
-proc showHelp(lang: string = "en") =
-  if lang == "ru":
-    echo colorize("""
-nimfetch - Быстрый инструмент системной информации
-
-Использование:
-  nimfetch [ОПЦИИ]
-
-Опции:
-   -h, --help        Показать эту справку
-   -v, --version     Показать версию
-   -c, --config      Показать путь к конфигу
-   --init-config     Создать конфигурационный файл
-   --generate-config Интерактивный генератор конфигурации
-   --no-config       Игнорировать конфигурационный файл
-   --no-logo         Не показывать логотип
-   --json            Вывести в JSON формате
-   --themes          Показать доступные темы
-   --theme=NAME      Использовать тему (временно)
-   --set-theme=NAME  Установить тему постоянно (сохранить в конфиг)
-
-Диагностика:
-   --score           Оценка производительности системы
-   --health          Проверка здоровья системы
-   --security        Аудит безопасности
-   --power           Анализ питания и батареи
-   --network-test    Диагностика сети
-   --can-run=GAME    Проверить совместимость с игрой
-   --games           Показать список игр в базе
-   --live            Мониторинг в реальном времени
-
-Примеры:
-  nimfetch              Показать системную информацию
-  nimfetch --health     Проверить здоровье системы
-  nimfetch --can-run "Cyberpunk 2077"
-  nimfetch --live       Мониторинг в реальном времени
-""", Cyan)
-  else:
-    echo colorize("""
+proc showHelp() =
+  echo colorize("""
 nimfetch - Fast system information tool
 
 Usage:
@@ -142,12 +105,6 @@ Examples:
   nimfetch --health     Check system health
   nimfetch --can-run "Cyberpunk 2077"
   nimfetch --live       Real-time monitoring
-
-Examples:
-  nimfetch              Show system information
-  nimfetch --help       Show this help
-  nimfetch --init-config   Create config
-  nimfetch --theme=nord Use nord theme
   nimfetch --set-theme=dracula  Set dracula as default theme
 """, Cyan)
 
@@ -165,14 +122,14 @@ proc initConfig() =
   else:
     echo colorize("✗ Failed to create config", BrightRed)
 
-# ----------------- ПРОГРЕСС-БАР -----------------
+# ----------------- PROGRESS BAR -----------------
 
 proc progressBar(percent: float, width: int = 10): string =
-  ## Создаёт текстовый прогресс-бар
+  ## Create text progress bar
   let filled = int(percent / 100.0 * width.float)
   let empty = width - filled
   
-  # Определяем цвет на основе процента
+  # Determine color based on percentage
   let barColor = if percent < 50: Green
                  elif percent < 75: Yellow
                  else: Red
@@ -180,16 +137,16 @@ proc progressBar(percent: float, width: int = 10): string =
   result = colorize(barFilled.repeat(filled), barColor) & 
            colorize(barEmpty.repeat(empty), BrightBlack)
 
-# ----------------- ЦВЕТНЫЕ МЕТКИ -----------------
+# ----------------- COLORED LABELS -----------------
 
 proc label(text: string, icon: string, col: RgbColor): string =
-  ## Создаёт цветную метку с иконкой (true-color версия)
+  ## Create colored label with icon (true-color version)
   colorize(icon & " " & text, col)
 
-# ----------------- ИНФОРМАЦИЯ О CPU -----------------
+# ----------------- CPU INFO -----------------
 
 proc getCpuInfo(): string =
-  ## Получает информацию о CPU
+  ## Get CPU information
   when hostOS == "linux":
     try:
       if fileExists("/proc/cpuinfo"):
@@ -204,7 +161,7 @@ proc getCpuInfo(): string =
   return "N/A"
 
 proc getCpuCores(): int =
-  ## Получает количество ядер CPU
+  ## Get CPU core count
   when hostOS == "linux":
     try:
       if fileExists("/proc/cpuinfo"):
@@ -218,10 +175,10 @@ proc getCpuCores(): int =
       discard
   return 0
 
-# ----------------- РАЗРЕШЕНИЕ ЭКРАНА -----------------
+# ----------------- SCREEN RESOLUTION -----------------
 
 proc getResolution(): string =
-  ## Получает разрешение экрана
+  ## Get screen resolution
   when hostOS == "linux":
     try:
       when declared(execCmdEx):
@@ -234,10 +191,10 @@ proc getResolution(): string =
       discard
   return "N/A"
 
-# ----------------- ЦВЕТА ТЕРМИНАЛА -----------------
+# ----------------- TERMINAL COLORS -----------------
 
 proc getTerminalColors(): string =
-  ## Возвращает строку с цветами терминала
+  ## Return terminal colors string
   result = ""
   let colors = [Black, Red, Green, Yellow, Blue, Magenta, Cyan, White]
   for c in colors:
@@ -246,38 +203,7 @@ proc getTerminalColors(): string =
   for c in [BrightBlack, BrightRed, BrightGreen, BrightYellow, BrightBlue, BrightMagenta, BrightCyan, BrightWhite]:
     result &= colorize("●", c)
 
-# ----------------- ВЫВОД ИНФОРМАЦИИ -----------------
-
-proc stripAnsi(s: string): string =
-  ## Убирает ANSI коды из строки для подсчёта видимой длины
-  result = ""
-  var i = 0
-  while i < s.len:
-    if s[i] == '\x1b':
-      # Пропускаем ANSI последовательность
-      inc(i)
-      if i < s.len and s[i] == '[':
-        inc(i)
-        while i < s.len and s[i] notin {'A'..'Z', 'a'..'z', '0'..'9'}:
-          inc(i)
-        if i < s.len:
-          inc(i)
-    else:
-      result.add(s[i])
-      inc(i)
-
-proc visibleLen(s: string): int =
-  ## Возвращает видимую длину строки без ANSI кодов
-  ## Учитывает, что emoji занимают 2 колонки
-  let stripped = stripAnsi(s)
-  result = 0
-  for c in stripped.runes:
-    # Emoji и другие широкие символы имеют категорию "So" (Symbol, other)
-    # Простая эвристика: символы вне BMP (code point > 0xFFFF) обычно широкие
-    if c.ord > 0xFFFF:
-      result += 2  # Emoji и другие широкие символы
-    else:
-      result += 1
+# ----------------- INFO OUTPUT -----------------
 
 proc showSystemInfo(cfg: Config, showLogo: bool, theme: Theme) =
   ## Shows system information
@@ -286,30 +212,30 @@ proc showSystemInfo(cfg: Config, showLogo: bool, theme: Theme) =
   let logoLines = getAutoLogo()
   let logoColor = getLogoColor()
   
-  # Получаем информацию о пользователе и хосте
+  # Get user and host info
   let username = getEnv("USER")
   let hostname = getEnv("HOSTNAME")
   
-  # Получаем всю информацию
+  # Get all info
   let osInfo = getOsInfo()
   let shellInfo = shell.getShellInfo()
   let cpuName = getCpuInfo()
   let cpuCores = getCpuCores()
   let resolution = getResolution()
   
-  # Собираем строки информации
+  # Build info lines
   var infoLines: seq[string] = @[]
   
-  # Заголовок с пользователем и хостом
+  # Header with user and host
   let userHost = bold(colorize(username, theme.primary)) & 
                  colorize("@", theme.secondary) & 
                  bold(colorize(hostname, theme.primary))
   infoLines.add(userHost)
   
-  # Разделитель
+  # Separator
   infoLines.add(colorize("─".repeat(28), BrightBlack))
   
-  # Основная информация (с проверкой конфигурации)
+  # Main info (with config check)
   if isModuleEnabled(cfg, "os"):
     infoLines.add(label("OS", IconOS, theme.accent) & " " & colorize(osInfo.name & " " & osInfo.arch, theme.secondary))
   
@@ -342,7 +268,7 @@ proc showSystemInfo(cfg: Config, showLogo: bool, theme: Theme) =
   if isModuleEnabled(cfg, "cpu") and cpuName != "N/A":
     let cpuStr = if cpuCores > 0: fmt"{cpuName} ({cpuCores} cores)" else: cpuName
     var cpuLine = label("CPU", IconCPU, theme.error) & " " & colorize(cpuStr, theme.secondary)
-    # Добавляем температуру если доступна
+    # Add temperature if available
     let cpuTemp = cpu_temp.getInfo()
     if cpuTemp != "N/A":
       cpuLine &= " " & colorize(cpuTemp, theme.warning)
@@ -354,14 +280,14 @@ proc showSystemInfo(cfg: Config, showLogo: bool, theme: Theme) =
     if gpuInfo != "N/A":
       infoLines.add(label("GPU", IconGPU, theme.success) & " " & colorize(gpuInfo, theme.secondary))
   
-  # Memory с прогресс-баром
+  # Memory with progress bar
   if isModuleEnabled(cfg, "memory"):
     let memPercent = memory.getMemoryPercent()
     let memBar = progressBar(memPercent, 8)
     let memStr = fmt"{memory.getInfo()}"
     infoLines.add(label("Memory", IconMemory, theme.accent) & " " & colorize(memStr, theme.secondary) & " " & memBar)
   
-  # Disk с прогресс-баром
+  # Disk with progress bar
   if isModuleEnabled(cfg, "disk"):
     let diskPercent = disk.getDiskPercent()
     let diskBar = progressBar(diskPercent, 8)
@@ -379,7 +305,7 @@ proc showSystemInfo(cfg: Config, showLogo: bool, theme: Theme) =
     if localIp != "N/A":
       infoLines.add(label("Local IP", IconIP, theme.warning) & " " & colorize(localIp, theme.secondary))
   
-  # Battery (для ноутбуков)
+  # Battery (for laptops)
   if isModuleEnabled(cfg, "battery"):
     let batteryInfo = battery.getInfo()
     if batteryInfo != "N/A":
@@ -461,17 +387,13 @@ when isMainModule:
   var useJson = false
   var themeName = ""
   var setTheme = ""
-  
-  # Pre-load config for language setting
-  let preCfg = if fileExists(getConfigPath()): loadConfig() else: defaultConfig()
-  let lang = preCfg.general.language
 
   for kind, key, val in p.getopt():
     case kind
     of cmdLongOption, cmdShortOption:
       case key
       of "help", "h":
-        showHelp(lang)
+        showHelp()
         showInfo = false
       of "version", "v":
         showVersion()
@@ -483,7 +405,7 @@ when isMainModule:
         initConfig()
         showInfo = false
       of "generate-config":
-        discard config_gen.generateConfig(lang)
+        discard config_gen.generateConfig()
         showInfo = false
       of "no-config":
         useConfig = false
@@ -500,36 +422,32 @@ when isMainModule:
       of "set-theme":
         setTheme = val
       of "score":
-        score.printPerformanceScore(lang)
+        score.printPerformanceScore()
         showInfo = false
       of "health":
-        health.printHealthReport(lang)
+        health.printHealthReport()
         showInfo = false
       of "security":
-        security.printSecurityAudit(lang)
+        security.printSecurityAudit()
         showInfo = false
       of "power":
-        power.printPowerAnalysis(lang)
+        power.printPowerAnalysis()
         showInfo = false
       of "network-test":
-        network_test.printNetworkTest(lang)
+        network_test.printNetworkTest()
         showInfo = false
       of "can-run":
-        game_compat.printCompatibility(val, lang)
+        game_compat.printCompatibility(val)
         showInfo = false
       of "games":
-        game_compat.listGames(lang)
+        game_compat.listGames()
         showInfo = false
       of "live":
-        live.runLiveMode(lang)
+        live.runLiveMode()
         showInfo = false
       else:
-        if lang == "ru":
-          echo colorize("❌ Неизвестная опция: ", BrightRed) & key
-          echo "Используйте --help для справки"
-        else:
-          echo colorize("❌ Unknown option: ", BrightRed) & key
-          echo "Use --help for usage"
+        echo colorize("❌ Unknown option: ", BrightRed) & key
+        echo "Use --help for usage"
         quit(1)
     of cmdArgument:
       discard
@@ -539,15 +457,9 @@ when isMainModule:
   # Handle --set-theme
   if setTheme.len > 0:
     if saveTheme(setTheme):
-      if lang == "ru":
-        echo colorize("✓ Тема '", Green) & setTheme & colorize("' сохранена как тема по умолчанию", Green)
-      else:
-        echo colorize("✓ Theme '", Green) & setTheme & colorize("' saved as default theme", Green)
+      echo colorize("✓ Theme '", Green) & setTheme & colorize("' saved as default theme", Green)
     else:
-      if lang == "ru":
-        echo colorize("✗ Ошибка сохранения темы", BrightRed)
-      else:
-        echo colorize("✗ Failed to save theme", BrightRed)
+      echo colorize("✗ Failed to save theme", BrightRed)
     showInfo = false
 
   if showInfo:
