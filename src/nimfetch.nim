@@ -37,21 +37,13 @@ import nimfetch/logos/auto
 const Version = "0.2.0"
 const AppName = "nimfetch"
 
-# Unicode символы для рамки и прогресс-баров
+# Unicode symbols for progress bars
 const
-  # Рамка
-  tl = "╭"      # top-left
-  tr = "╮"      # top-right
-  bl = "╰"      # bottom-left
-  br = "╯"      # bottom-right
-  h  = "─"      # horizontal
-  v  = "│"      # vertical
-  
-  # Прогресс-бар
+  # Progress bar
   barFilled = "■"
   barEmpty = "□"
   
-  # Иконки (emoji fallback)
+  # Icons (emoji fallback)
   IconOS = "📦"
   IconKernel = "🔧"
   IconUptime = "⏱️"
@@ -72,31 +64,29 @@ const
 
 proc showHelp() =
   echo colorize("""
-nimfetch - Быстрый инструмент системной информации
+nimfetch - Fast system information tool
 
-Использование:
-  nimfetch [ОПЦИИ]
+Usage:
+  nimfetch [OPTIONS]
 
-Опции:
-  -h, --help        Показать эту справку
-  -v, --version     Показать версию
-  -c, --config      Показать путь к конфигу
-  --init-config     Создать конфигурационный файл по умолчанию
-  --no-config       Игнорировать конфигурационный файл
-  --no-logo         Не показывать логотип
-  --box             Показать информацию в рамке
-  --json            Вывести информацию в JSON формате
-  --themes          Показать доступные темы
-  --theme=NAME      Использовать тему (временно)
-  --set-theme=NAME  Установить тему постоянно (сохранить в конфиг)
+Options:
+  -h, --help        Show this help
+  -v, --version     Show version
+  -c, --config      Show config path
+  --init-config     Create default configuration file
+  --no-config       Ignore configuration file
+  --no-logo         Don't show logo
+  --json            Output in JSON format
+  --themes          Show available themes
+  --theme=NAME      Use theme (temporary)
+  --set-theme=NAME  Set theme permanently (save to config)
 
-Примеры:
-  nimfetch              Показать системную информацию
-  nimfetch --help       Показать справку
-  nimfetch --init-config   Создать конфиг
-  nimfetch --box        Показать в рамке
-  nimfetch --theme=nord Использовать тему nord
-  nimfetch --set-theme=dracula  Установить dracula как тему по умолчанию
+Examples:
+  nimfetch              Show system information
+  nimfetch --help       Show this help
+  nimfetch --init-config   Create config
+  nimfetch --theme=nord Use nord theme
+  nimfetch --set-theme=dracula  Set dracula as default theme
 """, Cyan)
 
 proc showVersion() =
@@ -104,14 +94,14 @@ proc showVersion() =
 
 proc showConfigPath() =
   let configPath = getConfigPath()
-  echo colorize("Путь к конфигу: ", Yellow) & configPath
+  echo colorize("Config path: ", Yellow) & configPath
 
 proc initConfig() =
   let path = getConfigPath()
   if saveDefaultConfig(path):
-    echo colorize("✓ Конфигурация создана: ", Green) & path
+    echo colorize("✓ Config created: ", Green) & path
   else:
-    echo colorize("✗ Ошибка создания конфигурации", BrightRed)
+    echo colorize("✗ Failed to create config", BrightRed)
 
 # ----------------- ПРОГРЕСС-БАР -----------------
 
@@ -227,10 +217,10 @@ proc visibleLen(s: string): int =
     else:
       result += 1
 
-proc showSystemInfo(cfg: Config, showLogo: bool, useBox: bool, theme: Theme) =
-  ## Показывает системную информацию
+proc showSystemInfo(cfg: Config, showLogo: bool, theme: Theme) =
+  ## Shows system information
   
-  # Получаем логотип
+  # Get logo
   let logoLines = getAutoLogo()
   let logoColor = getLogoColor()
   
@@ -369,34 +359,13 @@ proc showSystemInfo(cfg: Config, showLogo: bool, useBox: bool, theme: Theme) =
     if tzInfo != "N/A":
       infoLines.add(label("Timezone", "🕐", theme.warning) & " " & colorize(tzInfo, theme.secondary))
   
-  # Цвета терминала
+  # Terminal colors
   infoLines.add("")
   infoLines.add(colorize("  Colors: ", theme.secondary) & getTerminalColors())
   
-  # Выводим информацию
-  if useBox:
-    # Вычисляем максимальную видимую длину строки
-    var maxLen = 0
-    for line in infoLines:
-      let vlen = visibleLen(line)
-      if vlen > maxLen:
-        maxLen = vlen
-    
-    # Добавляем отступ для emoji (они занимают 2 колонки, но считаются как 1)
-    let boxWidth = maxLen + 6
-    
-    # Верхняя рамка
-    echo colorize(tl & h.repeat(boxWidth) & tr, theme.primary)
-    
-    for line in infoLines:
-      let padding = boxWidth - visibleLen(line) - 4
-      echo colorize(v, theme.primary) & "  " & line & " ".repeat(max(0, padding)) & "  " & colorize(v, theme.primary)
-    
-    # Нижняя рамка
-    echo colorize(bl & h.repeat(boxWidth) & br, theme.primary)
-    
-  elif showLogo:
-    # Выводим логотип и информацию рядом
+  # Output information
+  if showLogo:
+    # Show logo and info side by side
     let maxLogoLines = logoLines.len
     let maxInfoLines = infoLines.len
     let totalLines = max(maxLogoLines, maxInfoLines)
@@ -404,30 +373,29 @@ proc showSystemInfo(cfg: Config, showLogo: bool, useBox: bool, theme: Theme) =
     for i in 0..<totalLines:
       var line = ""
       
-      # Логотип
+      # Logo
       if i < logoLines.len:
         line &= colorize(logoLines[i], parseColorName(logoColor))
       else:
         line &= " ".repeat(40)
       
-      # Информация
+      # Info
       line &= "   "
       if i < infoLines.len:
         line &= infoLines[i]
       
       echo line
   else:
-    # Выводим только информацию
+    # Show info only
     for line in infoLines:
       echo line
 
-# ----------------- ТОЧКА ВХОДА -----------------
+# ----------------- ENTRY POINT -----------------
 when isMainModule:
   var p = initOptParser(commandLineParams())
   var showInfo = true
   var showLogo = true
   var useConfig = true
-  var useBox = false
   var useJson = false
   var themeName = ""
   var setTheme = ""
@@ -452,43 +420,40 @@ when isMainModule:
         useConfig = false
       of "no-logo":
         showLogo = false
-      of "box":
-        useBox = true
-        showLogo = false
       of "json":
         useJson = true
         showLogo = false
       of "themes":
-        echo colorize("Доступные темы: ", Cyan) & getAvailableThemes().join(", ")
+        echo colorize("Available themes: ", Cyan) & getAvailableThemes().join(", ")
         showInfo = false
       of "theme":
         themeName = val
       of "set-theme":
         setTheme = val
       else:
-        echo colorize("❌ Неизвестная опция: ", BrightRed) & key
-        echo "Используйте --help для справки"
+        echo colorize("❌ Unknown option: ", BrightRed) & key
+        echo "Use --help for usage"
         quit(1)
     of cmdArgument:
       discard
     of cmdEnd:
       discard
 
-  # Обработка --set-theme
+  # Handle --set-theme
   if setTheme.len > 0:
     if saveTheme(setTheme):
-      echo colorize("✓ Тема '", Green) & setTheme & colorize("' сохранена как тема по умолчанию", Green)
+      echo colorize("✓ Theme '", Green) & setTheme & colorize("' saved as default theme", Green)
     else:
-      echo colorize("✗ Ошибка сохранения темы", BrightRed)
+      echo colorize("✗ Failed to save theme", BrightRed)
     showInfo = false
 
   if showInfo:
     if useJson:
       printJsonOutput()
     else:
-      # Загружаем конфигурацию
+      # Load configuration
       let cfg = if useConfig: loadConfig() else: defaultConfig()
-      # Используем тему из параметра, или из конфига, или default
+      # Use theme from parameter, or from config, or default
       let effectiveTheme = if themeName.len > 0: themeName else: cfg.theme.name
       let theme = getTheme(effectiveTheme)
-      showSystemInfo(cfg, showLogo, useBox, theme)
+      showSystemInfo(cfg, showLogo, theme)
